@@ -28,7 +28,7 @@ let currentFilter  = 'all';
 let editingMatchId = null;
 let addingMatch    = false;
 
-const REMOTE_API_BASE = ''; // Remplace par l'URL publique de ton serveur, ex: 'https://monserveur.example.com'
+const REMOTE_API_BASE = 'https://can2sav.onrender.com'; // Remplace par l'URL publique de ton serveur, ex: 'https://monserveur.example.com'
 const LOCAL_API_BASE  = 'http://127.0.0.1:8000';
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? LOCAL_API_BASE
