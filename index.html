@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ==========================================
+       TITRE DE L'ONGLET DANS LE NAVIGATEUR
+       Changez "CAN de Sav" par le nom de votre tournoi
+       ========================================== -->
+  <title>CAN2SAV</title>
+
+  <!-- Police Google Fonts (style moderne) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Lien vers le fichier CSS (ne pas modifier ce chemin) -->
+  <link rel="stylesheet" href="style.css" />
+
+</head>
+<body>
+
+  <!-- Bannière en haut de page (modifiable) -->
+  <div class="site-banner" role="region" aria-label="Bannière d'information">
+    <div class="banner-inner">
+      <span class="banner-text">Bienvenue — Prochain match : Sénégal vs Mali — Dim 15 juin 10h00</span>
+      <button class="banner-close" aria-label="Fermer la bannière">×</button>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       SECTION 1 : EN-TÊTE / HERO
+       C'est la grande bannière verte en haut.
+       Modifiez le titre, le sous-titre et les stats.
+       ========================================== -->
+  <header class="hero">
+    <div class="hero-inner">
+
+      <!-- Petit badge jaune au-dessus du titre -->
+      <span class="hero-badge">Tournoi officiel</span>
+
+      <!-- Titre principal — MODIFIEZ ICI -->
+      <h1 class="hero-title">CAN2SAV</h1>
+
+      <!-- Sous-titre — MODIFIEZ ICI -->
+      <p class="hero-sub">Coupe Africaine des Nations — Savigny-le-Temple</p>
+
+      <!-- Statistiques affichées automatiquement par le JS -->
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="stat-num" id="nb-equipes">0</span>
+          <span class="stat-lbl">Équipes</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-num" id="nb-matchs">0</span>
+          <span class="stat-lbl">Matchs joués</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-num" id="nb-groupes">0</span>
+          <span class="stat-lbl">Groupes</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-num" id="nb-buts">0</span>
+          <span class="stat-lbl">Buts</span>
+        </div>
+      </div>
+
+    </div>
+    <!-- Cercles décoratifs (purement visuels, définis dans le CSS) -->
+    <div class="hero-circle hero-circle--1"></div>
+    <div class="hero-circle hero-circle--2"></div>
+  </header>
+
+
+  <!-- ==========================================
+       SECTION 2 : BARRE DE NAVIGATION
+       Les 3 boutons pour changer d'onglet.
+       Le JS gère le changement de page au clic.
+       ========================================== -->
+  <nav class="main-nav">
+    <div class="nav-inner">
+      <!-- data-section doit correspondre à l'id de la section (ex: "sec-calendrier") -->
+      <button class="nav-btn active" data-section="calendrier">Calendrier</button>
+      <button class="nav-btn"        data-section="classement">Classement</button>
+      <button class="nav-btn"        data-section="presentation">Présentation</button>
+      <button class="nav-admin" id="btn-admin-login">Admin</button>
+    </div>
+  </nav>
+
+
+  <!-- ==========================================
+       SECTION 3 : CONTENU PRINCIPAL
+       Contient les 3 "pages" (onglets).
+       Une seule est visible à la fois (gérée par le JS).
+       ========================================== -->
+  <main class="main-content">
+
+
+    <!-- ------------------------------------------
+         ONGLET 1 : CALENDRIER DES MATCHS
+         Les matchs sont générés automatiquement
+         depuis le tableau "matches" dans app.js
+         ------------------------------------------ -->
+    <section id="sec-calendrier" class="section active">
+
+      <!-- Boutons de filtre par groupe -->
+      <div class="group-filter">
+        <button class="filter-btn active" data-filter="all">Tous</button>
+        <button class="filter-btn" data-filter="A">Groupe A</button>
+        <button class="filter-btn" data-filter="B">Groupe B</button>
+        <button class="filter-btn" data-filter="C">Groupe C</button>
+        <button class="filter-btn" data-filter="D">Groupe D</button>
+        <button class="filter-btn" data-filter="final">Phases finales</button>
+      </div>
+
+      <!-- Les matchs s'affichent ici automatiquement (injecté par le JS) -->
+      <div id="matches-container"></div>
+
+      <!-- Bouton pour ajouter un nouveau match -->
+      <button class="add-btn" id="btn-add-match">+ Ajouter un match</button>
+
+    </section>
+
+
+    <!-- ------------------------------------------
+         ONGLET 2 : CLASSEMENT
+         Calculé automatiquement depuis les résultats.
+         Les 2 premiers de chaque groupe sont qualifiés.
+         ------------------------------------------ -->
+    <section id="sec-classement" class="section">
+
+      <!-- Les tableaux de classement s'affichent ici (injecté par le JS) -->
+      <div id="standings-container"></div>
+
+      <!-- Légende du point vert = qualifié -->
+      <div class="legend">
+        <span class="legend-dot"></span>
+        Qualifié pour les phases finales
+      </div>
+
+    </section>
+
+
+    <!-- ------------------------------------------
+         ONGLET 3 : PRÉSENTATION DU TOURNOI
+         Contenu statique — modifiez directement ici.
+         ------------------------------------------ -->
+    <section id="sec-presentation" class="section">
+
+      <!-- Cartes d'infos générales — MODIFIEZ LES VALEURS ICI -->
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="ic-label">Édition</div>
+          <div class="ic-val">2026 </div>
+        </div>
+        <div class="info-card">
+          <div class="ic-label">Lieu</div>
+          <div class="ic-val">Savigny-le-Temple</div>  <!-- MODIFIEZ -->
+        </div>
+        <div class="info-card">
+          <div class="ic-label">Format</div>
+          <div class="ic-val">16 équipes</div>
+        </div>
+        <div class="info-card">
+          <div class="ic-label">Statut</div>
+          <div class="ic-val ic-val--green">En cours</div>  <!-- MODIFIEZ si besoin -->
+        </div>
+      </div>
+
+      <!-- Texte de description — MODIFIEZ ICI -->
+      <p class="pres-desc">
+        La CAN2SAV est un tournoi de football inter-quartiers inspiré
+        de la Coupe d'Afrique des Nations. Chaque équipe représente un pays africain.
+      </p>
+
+      <!-- Format du tournoi — Ajoutez/supprimez des phases si besoin -->
+      <h2 class="pres-subtitle">Format du tournoi</h2>
+      <div class="phases">
+
+        <!-- Phase 1 : Groupes (icône verte) -->
+        <div class="phase-line">
+          <div class="phase-icon phase-icon--green">G</div>
+          <div>
+            <div class="phase-name">Phase de groupes</div>
+            <div class="phase-desc">4 groupes de 4 équipes — 2 premiers qualifiés</div>
+          </div>
+        </div>
+
+        <!-- Phase 2 : Quarts (icône dorée) -->
+        <div class="phase-line">
+          <div class="phase-icon phase-icon--gold">Q</div>
+          <div>
+            <div class="phase-name">Quarts de finale</div>
+            <div class="phase-desc">8 équipes qualifiées — matchs à élimination directe</div>
+          </div>
+        </div>
+
+        <!-- Phase 3 : Demies (icône dorée) -->
+        <div class="phase-line">
+          <div class="phase-icon phase-icon--gold">D</div>
+          <div>
+            <div class="phase-name">Demi-finales</div>
+            <div class="phase-desc">4 équipes restantes</div>
+          </div>
+        </div>
+
+        <!-- Phase 4 : Finale (icône rouge) -->
+        <div class="phase-line">
+          <div class="phase-icon phase-icon--red">F</div>
+          <div>
+            <div class="phase-name">Finale</div>
+            <div class="phase-desc">Le grand choc — le champion est couronné</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+  </main>
+
+
+  <!-- ==========================================
+       SECTION 4 : FENÊTRE MODALE (POPUP)
+       S'affiche quand on clique sur un match
+       ou sur "Ajouter un match".
+       Le contenu est injecté dynamiquement par le JS.
+       ========================================== -->
+  <div id="modal-overlay" class="modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+
+      <!-- Titre du popup (ex: "Sénégal vs Mali") -->
+      <h3 class="modal-title" id="modal-title">Modifier</h3>
+
+      <!-- Formulaire injecté par le JS selon le contexte -->
+      <div id="modal-body"></div>
+
+      <!-- Boutons d'action -->
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btn-cancel">Annuler</button>
+        <button class="btn-save"   id="btn-save">Enregistrer</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="admin-login-overlay" class="modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <h3 class="modal-title">Connexion admin</h3>
+      <div id="admin-login-body">
+        <div class="field">
+          <label for="admin-password">Mot de passe</label>
+          <input type="password" id="admin-password" placeholder="Mot de passe" />
+        </div>
+        <p id="admin-error" class="field-error"></p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btn-admin-cancel">Annuler</button>
+        <button class="btn-save" id="btn-admin-submit">Connexion</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Lien vers le fichier JavaScript (toujours en bas, avant </body>) -->
+  <script src="script.js"></script>
+
+</body>
+</html>

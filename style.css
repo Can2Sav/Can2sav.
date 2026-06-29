@@ -1,0 +1,756 @@
+/* ================================================================
+   CAN DE SAV — style.css
+   
+   STRUCTURE DU FICHIER :
+   1. Variables (couleurs, polices, espacements)
+   2. Reset (remise à zéro des styles par défaut)
+   3. Hero (bannière verte du haut)
+   4. Navigation (barre avec les 3 boutons d'onglet)
+   5. Contenu principal + sections
+   6. Filtre de groupes
+   7. Cartes de matchs
+   8. Classement (tableaux)
+   9. Présentation
+   10. Fenêtre modale (popup)
+   11. Responsive mobile
+   ================================================================ */
+
+
+/* ================================================================
+   1. VARIABLES — MODIFIEZ ICI POUR CHANGER LES COULEURS
+   ================================================================
+   Les variables CSS permettent de changer une couleur à un seul
+   endroit et elle se met à jour partout sur le site.
+   ================================================================ */
+:root {
+  /* --- Couleurs principales --- */
+  --color-green:        #1a7a3c;   /* Couleur principale : hero, boutons actifs  */
+  --color-green-light:  #25a550;   /* Survol des boutons verts                   */
+  --color-gold:         #f5a623;   /* Accent doré : badge, filtre actif          */
+  --color-gold-dark:    #c47f0a;   /* Texte sur fond doré                        */
+  --color-red:          #d0021b;   /* Groupe C, phase finale                     */
+
+  /* --- Couleur de chaque groupe (point coloré sur les matchs) --- */
+  --color-group-a:      #1a7a3c;   /* Groupe A = vert   */
+  --color-group-b:      #f5a623;   /* Groupe B = doré   */
+  --color-group-c:      #d0021b;   /* Groupe C = rouge  */
+  --color-group-d:      #0071c5;   /* Groupe D = bleu   */
+
+  /* --- Police de caractères --- */
+  --font: 'Outfit', system-ui, sans-serif;
+
+  /* --- Couleurs de fond --- */
+  --bg-page:      #f4f6f4;   /* Fond de la page entière         */
+  --bg-card:      #ffffff;   /* Fond des cartes (matchs, infos) */
+  --bg-card-alt:  #f0f4f1;   /* Fond alternatif (survol, headers de tableau) */
+
+  /* --- Bordures --- */
+  --border: rgba(0, 0, 0, 0.1);   /* Couleur des lignes de séparation */
+
+  /* --- Texte --- */
+  --text-primary: #111;   /* Texte principal (titres, noms d'équipes) */
+  --text-muted:   #666;   /* Texte secondaire (dates, légendes)       */
+
+  /* --- Arrondis des coins --- */
+  --radius-sm:  6px;    /* Petit arrondi (inputs, boutons)  */
+  --radius-md:  10px;   /* Arrondi moyen (cartes de matchs) */
+  --radius-lg:  16px;   /* Grand arrondi (popup)            */
+
+  /* --- Ombre portée des cartes --- */
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.08);
+  /* --- Image de fond (placez `background.jpg` dans le même dossier ou changez le chemin) --- */
+  --bg-image: url("background.jpg");
+  --bg-overlay: rgba(244, 246, 244, 0.88);
+  /* --- Image spécifique pour la bannière hero (utilise le fichier présent dans le dossier) --- */
+  --hero-image: url("backrgound.jpg");
+  --hero-overlay: rgba(0, 0, 0, 0.45);
+}
+
+
+/* ================================================================
+   2. RESET — Remise à zéro des marges et comportements par défaut
+   ================================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;   /* Les bordures sont incluses dans la taille des éléments */
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font);
+  /* Fond : image + léger voile pour assurer lisibilité du texte */
+  background-image: linear-gradient(var(--bg-overlay), var(--bg-overlay)), var(--bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: var(--text-primary);
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ---------------------- Bannière ---------------------- */
+.site-banner {
+  width: 100%;
+  background: linear-gradient(90deg, var(--color-gold) 0%, #ffd27a 100%);
+  color: var(--color-gold-dark);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.banner-inner {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 8px 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-weight: 600;
+}
+.banner-text { font-size: 13px; }
+.banner-close {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-gold-dark);
+  padding: 0 6px;
+}
+.banner-close:hover { opacity: 0.9; }
+
+@media (max-width: 500px) {
+  .banner-inner { padding: 10px 0.75rem; }
+  .banner-text { font-size: 12px; }
+}
+
+/* Admin button styling */
+.nav-admin {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+}
+.nav-admin.active { background: var(--color-gold); color: var(--color-gold-dark); }
+
+/* Admin login modal tweaks reuse .modal-overlay/.modal */
+#admin-login-overlay .modal { max-width: 360px; }
+#admin-login-overlay .field-error {
+  color: #ff6666;
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* Tous les boutons héritent de la police */
+button { font-family: inherit; cursor: pointer; }
+
+/* Tous les champs et listes déroulantes aussi */
+input, select { font-family: inherit; }
+
+
+/* ================================================================
+   3. HERO — Grande bannière verte en haut de la page
+   ================================================================ */
+.hero {
+  /* Remplace le fond vert par une image fournie avec un voile sombre pour lisibilité */
+  background-image: linear-gradient(var(--hero-overlay), var(--hero-overlay)), var(--hero-image);
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  padding: 2.5rem 1.5rem 2rem;
+  position: relative;   /* Nécessaire pour positionner les cercles décoratifs */
+  overflow: hidden;     /* Cache les cercles qui dépassent */
+}
+
+/* Centrage du contenu avec une largeur max */
+.hero-inner {
+  position: relative;
+  z-index: 2;           /* Au-dessus des cercles décoratifs */
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* ---- Cercles décoratifs (purement visuels) ---- */
+.hero-circle {
+  position: absolute;
+  border-radius: 50%;
+  z-index: 1;
+}
+.hero-circle--1 {
+  width: 200px; height: 200px;
+  top: -50px; right: -50px;
+  border: 28px solid rgba(245, 166, 35, 0.2);  /* Cercle doré en haut à droite */
+}
+.hero-circle--2 {
+  width: 120px; height: 120px;
+  bottom: -40px; left: 60px;
+  border: 18px solid rgba(255, 255, 255, 0.08);  /* Cercle blanc en bas à gauche */
+}
+
+/* ---- Badge jaune (ex : "Tournoi officiel") ---- */
+.hero-badge {
+  display: inline-block;
+  background: var(--color-gold);
+  color: var(--color-gold-dark);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 12px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+/* ---- Titre principal ---- */
+.hero-title {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+/* ---- Sous-titre ---- */
+.hero-sub {
+  font-size: 14px;
+  opacity: 0.75;
+  margin-bottom: 1.5rem;
+}
+
+/* ---- Ligne de statistiques ---- */
+.hero-stats {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;   /* Passe à la ligne sur petit écran */
+}
+
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Grand chiffre doré */
+.stat-num {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-gold);
+  line-height: 1;
+}
+
+/* Libellé sous le chiffre */
+.stat-lbl {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.65;
+  margin-top: 2px;
+}
+
+
+/* ================================================================
+   4. NAVIGATION — Barre d'onglets collante en haut de page
+   ================================================================ */
+.main-nav {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;   /* Reste visible même en scrollant */
+  top: 0;
+  z-index: 50;
+}
+
+.nav-inner {
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  gap: 4px;
+  padding: 10px 1rem;
+}
+
+/* ---- Boutons de navigation ---- */
+.nav-btn {
+  padding: 7px 18px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+/* Survol */
+.nav-btn:hover {
+  background: var(--bg-card-alt);
+  color: var(--text-primary);
+}
+
+/* Bouton actif (onglet sélectionné) */
+.nav-btn.active {
+  background: var(--color-green);
+  color: #fff;
+}
+
+
+/* ================================================================
+   5. CONTENU PRINCIPAL + SECTIONS (ONGLETS)
+   ================================================================ */
+.main-content {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* Par défaut toutes les sections sont cachées */
+.section { display: none; }
+
+/* Seule la section avec .active est visible */
+.section.active { display: block; }
+
+
+/* ================================================================
+   6. FILTRE DE GROUPES (boutons "Tous / Groupe A / Groupe B...")
+   ================================================================ */
+.group-filter {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 1.2rem;
+}
+
+.filter-btn {
+  padding: 5px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.filter-btn:hover {
+  background: var(--bg-card-alt);
+  color: var(--text-primary);
+}
+
+/* Filtre sélectionné = fond doré */
+.filter-btn.active {
+  background: var(--color-gold);
+  color: var(--color-gold-dark);
+  border-color: var(--color-gold);
+}
+
+
+/* ================================================================
+   7. CARTES DE MATCHS
+   ================================================================ */
+
+/* Groupe de matchs d'une même journée */
+.match-day { margin-bottom: 1.5rem; }
+
+/* Titre de la journée (ex : "Sam 14 juin") */
+.match-day-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+/* ---- Carte d'un match ---- */
+.match-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  cursor: pointer;   /* Indique que c'est cliquable */
+  transition: background 0.12s, box-shadow 0.12s;
+  box-shadow: var(--shadow-card);
+}
+
+.match-card:hover {
+  background: var(--bg-card-alt);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Petit point de couleur qui indique le groupe */
+.match-group-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Nom d'une équipe */
+.team-name {
+  flex: 1;   /* Prend tout l'espace disponible */
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Équipe de droite = alignée à droite */
+.team-name--right { text-align: right; }
+
+/* Zone du score (ex : "2 - 1") */
+.score-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 60px;
+  justify-content: center;
+}
+
+.score-num {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.score-sep {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Heure affichée si le match n'a pas encore eu lieu */
+.match-time {
+  font-size: 12px;
+  color: var(--text-muted);
+  min-width: 50px;
+  text-align: center;
+}
+
+/* ---- Badge de statut du match ---- */
+.match-status {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.status-done     { background: #e8f5ee; color: #1a7a3c; }   /* Vert  = Terminé   */
+.status-live     { background: #fff3e0; color: #c47f0a; }   /* Doré  = En direct */
+.status-upcoming { background: #f0f0f0; color: #888888; }   /* Gris  = À venir   */
+
+/* ---- Bouton "Ajouter un match" ---- */
+.add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  background: var(--bg-card);
+  border: 1.5px dashed var(--border);   /* Bordure pointillée */
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.add-btn:hover {
+  background: var(--bg-card-alt);
+  color: var(--text-primary);
+  border-color: var(--color-green);
+}
+
+
+/* ================================================================
+   8. CLASSEMENT — Tableaux par groupe
+   ================================================================ */
+
+/* Bloc d'un groupe (titre + tableau) */
+.group-block { margin-bottom: 2rem; }
+
+/* Titre du groupe avec point coloré */
+.group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.group-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ---- Tableau HTML ---- */
+.rank-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border);
+}
+
+/* En-têtes de colonnes */
+.rank-table th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  background: var(--bg-card-alt);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Colonnes numériques centrées (sauf # et Équipe) */
+.rank-table th:not(:nth-child(1)):not(:nth-child(2)) { text-align: center; }
+
+/* Cellules */
+.rank-table td {
+  padding: 9px 10px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border);
+}
+
+.rank-table td:not(:nth-child(1)):not(:nth-child(2)) { text-align: center; }
+.rank-table tr:last-child td { border-bottom: none; }
+
+/* Ligne mise en évidence pour les équipes qualifiées */
+.rank-table tr.qualified { background: rgba(26, 122, 60, 0.05); }
+
+.rank-pos  { font-weight: 600; color: var(--text-muted); }   /* Colonne numéro   */
+.rank-team { font-weight: 600; }                              /* Colonne équipe   */
+.rank-pts  { font-weight: 700; color: var(--color-green); }  /* Colonne points   */
+
+/* Petit point vert à côté du numéro (= qualifié) */
+.qualified-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--color-green);
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+/* Légende sous le classement */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 10px;
+}
+
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--color-green);
+}
+
+
+/* ================================================================
+   9. PRÉSENTATION — Contenu statique
+   ================================================================ */
+
+/* Grille de cartes d'infos (Édition, Lieu, Format, Statut) */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));   /* S'adapte automatiquement */
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.info-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.ic-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.ic-val {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Valeur en vert (ex : "En cours") */
+.ic-val--green { color: var(--color-green); }
+
+/* Texte descriptif */
+.pres-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.pres-subtitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+/* ---- Phases du tournoi ---- */
+.phases { border-top: 1px solid var(--border); }
+
+.phase-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Icône ronde avec une lettre */
+.phase-icon {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.phase-icon--green { background: #e8f5ee; color: var(--color-green); }
+.phase-icon--gold  { background: #fff8e1; color: var(--color-gold-dark); }
+.phase-icon--red   { background: #fde8ea; color: var(--color-red); }
+
+.phase-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.phase-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+
+/* ================================================================
+   10. FENÊTRE MODALE (POPUP)
+   S'affiche par-dessus la page pour modifier un match
+   ================================================================ */
+
+/* Fond semi-transparent qui couvre toute la page */
+.modal-overlay {
+  display: none;           /* Cachée par défaut */
+  position: fixed;         /* Fixe par rapport à l'écran */
+  inset: 0;                /* Couvre tout (haut, bas, gauche, droite) */
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 100;            /* Au-dessus de tout */
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* La classe .open est ajoutée par le JS pour afficher la modal */
+.modal-overlay.open { display: flex; }
+
+/* La boîte blanche au centre */
+.modal {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 340px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.modal-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1.2rem;
+}
+
+/* ---- Champs du formulaire ---- */
+.field { margin-bottom: 12px; }
+
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+/* Bordure verte quand le champ est sélectionné */
+.field input:focus,
+.field select:focus { border-color: var(--color-green); }
+
+/* Boutons en bas du popup */
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 1.4rem;
+}
+
+.btn-cancel {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.btn-cancel:hover { background: var(--bg-card-alt); }
+
+.btn-save {
+  padding: 8px 20px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-green);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.btn-save:hover { background: var(--color-green-light); }
+
+
+/* ================================================================
+   11. RESPONSIVE — Adaptations pour petits écrans (mobile)
+   ================================================================ */
+@media (max-width: 500px) {
+  .hero-title  { font-size: 28px; }          /* Titre plus petit sur mobile */
+  .hero-stats  { gap: 1.2rem; }
+  .nav-inner   { padding: 8px 0.75rem; gap: 2px; }
+  .nav-btn     { padding: 6px 12px; font-size: 13px; }
+  .main-content { padding: 1rem 0.75rem 3rem; }
+  .score-num   { font-size: 16px; }
+  .rank-table  { font-size: 12px; }
+}

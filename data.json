@@ -1,0 +1,110 @@
+{
+  "matches": [
+    {
+      "id": 1,
+      "group": "A",
+      "home": "Algerie",
+      "away": "DOM-TOM",
+      "scoreH": null,
+      "scoreA": null,
+      "status": "upcoming",
+      "date": "Lun 29  juin",
+      "time": "19h00"
+    },
+    {
+      "id": 2,
+      "group": "A",
+      "home": "Côte d'Ivoire",
+      "away": "Nigeria",
+      "scoreH": null,
+      "scoreA": null,
+      "status": "upcoming",
+      "date": "Lun 29 juin",
+      "time": "19h00"
+    },
+    {
+      "id": 3,
+      "group": "B",
+      "home": "RD Congo",
+      "away": "Afrique du Sud",
+      "scoreH": null,
+      "scoreA": null,
+      "status": "upcoming",
+      "date": "Lun 29 juin",
+      "time": "20h00"
+    },
+    {
+      "id": 4,
+      "group": "B",
+      "home": "Cap Vert",
+      "away": "Togo",
+      "scoreH": null,
+      "scoreA": null,
+      "status": "upcoming",
+      "date": "Lun 29. juin",
+      "time": "20h00"
+    },
+    {
+      "id": 5,
+      "group": "C",
+      "home": "Senegal",
+      "away": "Palestine",
+      "scoreH": null,
+      "scoreA": null,
+      "status": "upcoming",
+      "date": "Mar 23 juin",
+      "time": "19h00"
+    },
+    {
+      "id": 6,
+      "group": "C",
+      "home": "Congo",
+      "away": "Tunisie",
+      "scoreH": null,
+      "scoreA": null,
+      "status": "upcoming",
+      "date": "Mar 23 juin",
+      "time": "19h00"
+    },
+    {
+      "id": 7,
+      "group": "D",
+      "home": "Comores",
+      "away": "Mali",
+      "scoreH": null,
+      "scoreA": null,
+      "status": "upcoming",
+      "date": "Mar 23 juin",
+      "time": "20h00"
+    },
+    {
+      "id": 8,
+      "group": "D",
+      "home": "Cameroun",
+      "away": "Maroc",
+      "scoreH": null,
+      "scoreA": null,
+      "status": "upcoming",
+      "date": "Mar 23 juin",
+      "time": "20h00"
+    }
+  ],
+  "teamsEffectif": {
+    "Algerie": 0,
+    "DOM-TOM": 0,
+    "Côte d'Ivoire": 0,
+    "Nigeria": 0,
+    "RD Congo": 0,
+    "Afrique du Sud": 0,
+    "Cap Vert": 0,
+    "Togo": 0,
+    "Senegal": 0,
+    "Palestine": 0,
+    "Congo": 0,
+    "Tunisie": 0,
+    "Comores": 0,
+    "Mali": 0,
+    "Cameroun": 0,
+    "Maroc": 0
+  }
+}
