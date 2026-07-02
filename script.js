@@ -5,6 +5,10 @@
 
 /* ---- DONNÉES — modifiez ici pour changer les équipes et matchs ---- */
 
+/* ============================================================
+   CAN2SAV — script.js
+   ============================================================ */
+
 const GROUP_COLORS = {
   A: 'var(--color-group-a)',
   B: 'var(--color-group-b)',
@@ -12,21 +16,18 @@ const GROUP_COLORS = {
   D: 'var(--color-group-d)',
 };
 
-let matches = [];
+let matches = []; // Les données viennent du serveur PostgreSQL
 
 /* ---- ÉTAT ---- */
 let currentFilter  = 'all';
 let editingMatchId = null;
 let addingMatch    = false;
 
-const REMOTE_API_BASE = 'https://can2sav.onrender.com'; // Remplace par l'URL publique de ton serveur, ex: 'https://monserveur.example.com'
+const REMOTE_API_BASE = 'https://can2sav.onrender.com';
 const LOCAL_API_BASE  = 'http://127.0.0.1:8000';
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? LOCAL_API_BASE
   : REMOTE_API_BASE;
-
-// IMPORTANT : pour GitHub Pages, configure REMOTE_API_BASE avec l'URL du serveur déployé.
-// Exemple : const REMOTE_API_BASE = 'https://monserveur.example.com';
 
 const useBackend = Boolean(API_BASE);
 
@@ -34,15 +35,17 @@ const AUTH_TOKEN_KEY = 'can2sav_admin_token';
 let adminToken = sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
 
 const LOCAL_DATA_KEY = 'can2sav_local_data';
-
 let teamsEffectif = {};
 
+/* ============================================================
+   DONNÉES LOCALES (cache navigateur)
+   ============================================================ */
 function loadLocalData() {
   const raw = localStorage.getItem(LOCAL_DATA_KEY);
   if (!raw) return;
   try {
     const data = JSON.parse(raw);
-    if (Array.isArray(data.matches)) {
+    if (Array.isArray(data.matches) && data.matches.length > 0) {
       matches = data.matches;
     }
     if (data.teamsEffectif && typeof data.teamsEffectif === 'object') {
@@ -57,7 +60,6 @@ function saveLocalData() {
   localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify({ matches, teamsEffectif }));
 }
 
-function saveEffectif() { saveLocalData(); }
 function ensureTeamsEffectif() {
   matches.forEach(m => {
     if (teamsEffectif[m.home] === undefined) teamsEffectif[m.home] = 0;
@@ -65,18 +67,22 @@ function ensureTeamsEffectif() {
   });
 }
 
+/* ============================================================
+   SERVEUR (PostgreSQL via server.py)
+   ============================================================ */
 async function loadServerData() {
   if (!useBackend) return;
   try {
     const res = await fetch(`${API_BASE}/api/data`);
     if (!res.ok) throw new Error('Erreur serveur');
     const data = await res.json();
-    if (Array.isArray(data.matches)) {
+    if (Array.isArray(data.matches) && data.matches.length > 0) {
       matches = data.matches;
     }
     if (data.teamsEffectif && typeof data.teamsEffectif === 'object') {
       teamsEffectif = data.teamsEffectif;
     }
+    console.log('Données chargées depuis le serveur :', matches.length, 'matchs');
   } catch (err) {
     console.warn('Impossible de charger les données serveur:', err.message);
   }
@@ -90,7 +96,7 @@ async function saveServerData() {
   }
   try {
     const payload = { matches, teamsEffectif };
-    await fetch(`${API_BASE}/api/save`, {
+    const res = await fetch(`${API_BASE}/api/save`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -98,11 +104,19 @@ async function saveServerData() {
       },
       body: JSON.stringify(payload),
     });
+    if (res.ok) {
+      console.log('Données sauvegardées sur le serveur ✅');
+    } else {
+      console.warn('Erreur sauvegarde serveur, statut:', res.status);
+    }
   } catch (err) {
-    console.warn('Impossible d enregistrer sur le serveur:', err.message);
+    console.warn('Impossible d\'enregistrer sur le serveur:', err.message);
   }
 }
 
+/* ============================================================
+   ADMIN
+   ============================================================ */
 function isAdmin() {
   return Boolean(adminToken);
 }
@@ -119,7 +133,7 @@ function setAdminToken(token) {
 
 function updateAdminUi() {
   const adminBtn = document.getElementById('btn-admin-login');
-  const addBtn = document.getElementById('btn-add-match');
+  const addBtn   = document.getElementById('btn-add-match');
   if (isAdmin()) {
     adminBtn.textContent = 'Admin ✓';
     adminBtn.classList.add('active');
@@ -132,10 +146,6 @@ function updateAdminUi() {
 }
 
 function openAdminLogin() {
-  if (!useBackend) {
-    alert('Serveur non configuré. Remplace REMOTE_API_BASE dans script.js par l\'URL de ton serveur.');
-    return;
-  }
   document.getElementById('admin-password').value = '';
   document.getElementById('admin-error').textContent = '';
   const overlay = document.getElementById('admin-login-overlay');
@@ -164,8 +174,7 @@ async function submitAdminLogin() {
     });
     const data = await res.json();
     if (!res.ok || !data.success) {
-      const message = data.error || 'Mot de passe incorrect';
-      document.getElementById('admin-error').textContent = message;
+      document.getElementById('admin-error').textContent = data.error || 'Mot de passe incorrect';
       return;
     }
     setAdminToken(data.token);
@@ -188,7 +197,6 @@ function editEffectif(team) {
   saveServerData();
   renderStandings();
 }
-
 
 /* ============================================================
    NAVIGATION
@@ -214,9 +222,14 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
   });
 });
 
+/* ============================================================
+   BOUTONS ADMIN
+   ============================================================ */
 document.getElementById('btn-admin-login').addEventListener('click', () => {
   if (isAdmin()) {
     setAdminToken('');
+    renderMatches();
+    renderStandings();
   } else {
     openAdminLogin();
   }
@@ -234,7 +247,6 @@ function renderMatches() {
     return m.group === currentFilter;
   });
 
-  // Grouper par date
   const byDate = {};
   filtered.forEach(m => {
     if (!byDate[m.date]) byDate[m.date] = [];
@@ -254,14 +266,13 @@ function renderMatches() {
              <span class="score-num">${m.scoreA}</span>
            </div>`;
       const statusLabel = m.status === 'done' ? 'Terminé' : m.status === 'live' ? 'En direct' : 'À venir';
-      const statusClass = 'match-status status-' + m.status;
       html += `
         <div class="match-card" data-id="${m.id}">
           <div class="match-group-dot" style="background:${color}"></div>
           <span class="team-name">${m.home}</span>
           ${scoreOrTime}
           <span class="team-name team-name--right">${m.away}</span>
-          <span class="${statusClass}">${statusLabel}</span>
+          <span class="match-status status-${m.status}">${statusLabel}</span>
         </div>`;
     });
     html += '</div>';
@@ -273,7 +284,6 @@ function renderMatches() {
 
   document.getElementById('matches-container').innerHTML = html;
 
-  // Attacher les événements de clic sur chaque carte
   if (isAdmin()) {
     document.querySelectorAll('.match-card').forEach(card => {
       card.addEventListener('click', () => openEditMatch(parseInt(card.dataset.id)));
@@ -289,20 +299,24 @@ function renderMatches() {
 function updateHeroStats() {
   const done = matches.filter(m => m.status === 'done');
   const buts = done.reduce((s, m) => s + (m.scoreH || 0) + (m.scoreA || 0), 0);
-  const allTeams = new Set();
-  matches.forEach(m => { allTeams.add(m.home); allTeams.add(m.away); });
-
+  const allTeams  = new Set();
+  const allGroups = new Set();
+  matches.forEach(m => {
+    allTeams.add(m.home);
+    allTeams.add(m.away);
+    if (m.group !== 'final') allGroups.add(m.group);
+  });
   document.getElementById('nb-matchs').textContent  = done.length;
   document.getElementById('nb-buts').textContent    = buts;
   document.getElementById('nb-equipes').textContent = allTeams.size;
+  document.getElementById('nb-groupes').textContent = allGroups.size;
 }
 
 /* ============================================================
-   RENDU CLASSEMENT
+   CLASSEMENT
    ============================================================ */
 function computeStandings() {
   const teams = {};
-
   matches
     .filter(m => m.status === 'done' && m.group !== 'final')
     .forEach(m => {
@@ -315,37 +329,28 @@ function computeStandings() {
         teams[name].bp += scored;
         teams[name].bc += conceded;
       });
-
       if (m.scoreH > m.scoreA) {
-        teams[m.home].pts += 3; teams[m.home].g++;
-        teams[m.away].d++;
+        teams[m.home].pts += 3; teams[m.home].g++; teams[m.away].d++;
       } else if (m.scoreH < m.scoreA) {
-        teams[m.away].pts += 3; teams[m.away].g++;
-        teams[m.home].d++;
+        teams[m.away].pts += 3; teams[m.away].g++; teams[m.home].d++;
       } else {
         teams[m.home].pts++; teams[m.home].n++;
         teams[m.away].pts++; teams[m.away].n++;
       }
     });
-
   return teams;
 }
 
 function renderStandings() {
   const teams = computeStandings();
-
-  // Regrouper par groupe
   const groups = {};
   Object.values(teams).forEach(t => {
     if (!groups[t.group]) groups[t.group] = [];
     groups[t.group].push(t);
   });
 
-  // Trier les groupes alphabétiquement (A, B, C…)
-  const sortedGroups = Object.keys(groups).sort();
-
   let html = '';
-  sortedGroups.forEach(g => {
+  Object.keys(groups).sort().forEach(g => {
     const sorted = groups[g].sort((a, b) => b.pts - a.pts || (b.bp - b.bc) - (a.bp - a.bc));
     const color  = GROUP_COLORS[g] || '#888';
     html += `
@@ -365,7 +370,6 @@ function renderStandings() {
             </tr>
           </thead>
           <tbody>`;
-
     sorted.forEach((t, i) => {
       const qualified = i < 2;
       html += `
@@ -373,14 +377,13 @@ function renderStandings() {
           <td class="rank-pos">${i + 1}${qualified ? '<span class="qualified-dot"></span>' : ''}</td>
           <td class="rank-team">
             <span class="editable-team" data-team="${t.name}">${t.name}</span>
-            <span class="team-eff"> &nbsp;•&nbsp; ${t.effectif || 0}</span>
+            <span class="team-eff">&nbsp;•&nbsp;${t.effectif || 0}</span>
           </td>
           <td>${t.j}</td><td>${t.g}</td><td>${t.n}</td><td>${t.d}</td>
           <td>${t.bp}</td><td>${t.bc}</td>
           <td class="rank-pts">${t.pts}</td>
         </tr>`;
     });
-
     html += '</tbody></table></div>';
   });
 
@@ -389,13 +392,10 @@ function renderStandings() {
   }
 
   document.getElementById('standings-container').innerHTML = html;
-  // Attacher écouteurs pour éditer l'effectif
+
   if (isAdmin()) {
     document.querySelectorAll('.editable-team').forEach(el => {
-      el.addEventListener('click', e => {
-        const team = e.currentTarget.dataset.team;
-        editEffectif(team);
-      });
+      el.addEventListener('click', e => editEffectif(e.currentTarget.dataset.team));
     });
   }
 }
@@ -410,7 +410,6 @@ function openEditMatch(id) {
 
   const m = matches.find(x => x.id === id);
   document.getElementById('modal-title').textContent = `${m.home} vs ${m.away}`;
-
   document.getElementById('modal-body').innerHTML = `
     <div class="field">
       <label>Score ${m.home}</label>
@@ -429,11 +428,11 @@ function openEditMatch(id) {
       </select>
     </div>
     <div class="field">
-      <label>Date (ex : Sam 14 juin)</label>
+      <label>Date (ex : Lun 22 juin)</label>
       <input type="text" id="ed-date" value="${m.date}" />
     </div>
     <div class="field">
-      <label>Heure (ex : 10h00)</label>
+      <label>Heure (ex : 19h00)</label>
       <input type="text" id="ed-time" value="${m.time}" />
     </div>`;
 
@@ -468,19 +467,19 @@ document.getElementById('btn-add-match').addEventListener('click', () => {
       </select>
     </div>
     <div class="field">
-      <label>Date (ex : Sam 14 juin)</label>
-      <input type="text" id="add-date" placeholder="Sam 14 juin" />
+      <label>Date (ex : Lun 22 juin)</label>
+      <input type="text" id="add-date" placeholder="Lun 22 juin" />
     </div>
     <div class="field">
-      <label>Heure (ex : 10h00)</label>
-      <input type="text" id="add-time" placeholder="10h00" />
+      <label>Heure (ex : 19h00)</label>
+      <input type="text" id="add-time" placeholder="19h00" />
     </div>`;
 
   openModal();
 });
 
 /* ============================================================
-   MODAL — SAVE / CLOSE
+   MODAL — ENREGISTRER / FERMER
    ============================================================ */
 function openModal() {
   document.getElementById('modal-overlay').classList.add('open');
@@ -497,7 +496,9 @@ document.getElementById('modal-overlay').addEventListener('click', e => {
   if (e.target === document.getElementById('modal-overlay')) closeModal();
 });
 
-document.getElementById('btn-save').addEventListener('click', () => {
+/* ---- CORRECTION PRINCIPALE : await sur saveServerData() ---- */
+document.getElementById('btn-save').addEventListener('click', async () => {
+
   if (addingMatch) {
     const home = document.getElementById('add-home').value.trim();
     const away = document.getElementById('add-away').value.trim();
@@ -506,52 +507,38 @@ document.getElementById('btn-save').addEventListener('click', () => {
       return;
     }
     matches.push({
-      id:      Date.now(),
-      group:   document.getElementById('add-group').value,
+      id:     Date.now(),
+      group:  document.getElementById('add-group').value,
       home,
       away,
-      scoreH:  null,
-      scoreA:  null,
-      status:  'upcoming',
-      date:    document.getElementById('add-date').value.trim() || 'À venir',
-      time:    document.getElementById('add-time').value.trim() || 'TBD',
+      scoreH: null,
+      scoreA: null,
+      status: 'upcoming',
+      date:   document.getElementById('add-date').value.trim() || 'À venir',
+      time:   document.getElementById('add-time').value.trim() || 'TBD',
     });
-    saveLocalData();
-    saveServerData();
+
   } else {
-    const m      = matches.find(x => x.id === editingMatchId);
-    const sh     = parseInt(document.getElementById('ed-sh').value, 10);
-    const sa     = parseInt(document.getElementById('ed-sa').value, 10);
-    m.scoreH     = isNaN(sh) ? null : sh;
-    m.scoreA     = isNaN(sa) ? null : sa;
-    m.status     = document.getElementById('ed-status').value;
-    m.date       = document.getElementById('ed-date').value.trim();
-    m.time       = document.getElementById('ed-time').value.trim();
-     saveLocalData();
+    const m  = matches.find(x => x.id === editingMatchId);
+    const sh = parseInt(document.getElementById('ed-sh').value, 10);
+    const sa = parseInt(document.getElementById('ed-sa').value, 10);
+    m.scoreH = isNaN(sh) ? null : sh;
+    m.scoreA = isNaN(sa) ? null : sa;
+    m.status = document.getElementById('ed-status').value;
+    m.date   = document.getElementById('ed-date').value.trim();
+    m.time   = document.getElementById('ed-time').value.trim();
   }
 
   closeModal();
-  saveServerData();
-  renderMatches();
+  saveLocalData();              // 1. Sauvegarde dans le navigateur
+  await saveServerData();       // 2. Sauvegarde dans PostgreSQL (on attend que ce soit fini)
+  renderMatches();              // 3. Rafraîchit l'affichage
   renderStandings();
 });
 
 /* ============================================================
-   INIT
+   BANNIÈRE
    ============================================================ */
-const addBtn = document.getElementById('btn-add-match');
-
-async function initApp() {
-  loadLocalData();
-  await loadServerData();
-  ensureTeamsEffectif();
-  renderMatches();
-  renderStandings();
-}
-
-initApp();
-
-// Fermeture de la bannière si l'utilisateur clique sur la croix
 const bannerCloseBtn = document.querySelector('.banner-close');
 if (bannerCloseBtn) {
   bannerCloseBtn.addEventListener('click', () => {
@@ -559,3 +546,18 @@ if (bannerCloseBtn) {
     if (b) b.style.display = 'none';
   });
 }
+
+/* ============================================================
+   INITIALISATION — appelée UNE SEULE FOIS au chargement
+   ============================================================ */
+async function initApp() {
+  await loadServerData();   // Charge depuis PostgreSQL en priorité
+  saveLocalData();          // Met à jour le cache local avec les données du serveur
+  ensureTeamsEffectif();
+  updateAdminUi();
+  renderMatches();
+  renderStandings();
+}
+
+initApp();
+
