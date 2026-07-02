@@ -545,6 +545,7 @@ document.getElementById('btn-save').addEventListener('click', () => {
     m.status     = document.getElementById('ed-status').value;
     m.date       = document.getElementById('ed-date').value.trim();
     m.time       = document.getElementById('ed-time').value.trim();
+     saveLocalData();
   }
 
   closeModal();
