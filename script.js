@@ -12,16 +12,7 @@ const GROUP_COLORS = {
   D: 'var(--color-group-d)',
 };
 
-let matches = [
-  { id: 1,  group: 'A', home: 'Algerie',      away: 'DOM-TOM',        scoreH: null,    scoreA: null,    status: 'upcoming',     date: 'Lun 22 juin', time: '19h00' },
-  { id: 2,  group: 'A', home: 'Côte d\'Ivoire', away: 'Nigeria',       scoreH: null,    scoreA: null,    status: 'upcoming',     date: 'Lun 22 juin', time: '19h00' },
-  { id: 3,  group: 'B', home: 'RD Congo',         away: 'Afrique du Sud', scoreH: null,    scoreA: null,    status: 'upcoming',     date: 'Lun 22 juin', time: '20h00' },
-  { id: 4,  group: 'B', home: 'Cap Vert',     away: 'Togo',       scoreH: null,    scoreA: null,    status: 'upcoming',     date: 'Lun 22 juin', time: '20h00' },
-  { id: 5,  group: 'C', home: 'Senegal',      away: 'Palestine',        scoreH: null,    scoreA: null,    status: 'upcoming',     date: 'Mar 23 juin', time: '19h00' },
-  { id: 6,  group: 'C', home: 'Congo',        away: 'Tunisie',      scoreH: null,    scoreA: null,    status: 'upcoming',     date: 'Mar 23 juin', time: '19h00' },
-  { id: 7,  group: 'D', home: 'Comores',      away: 'Mali',       scoreH: null,    scoreA: null,    status: 'upcoming',     date: 'Mar 23 juin', time: '20h00' },
-  { id: 8,  group: 'D', home: 'Cameroun',         away: 'Maroc',          scoreH: null,    scoreA: null,    status: 'upcoming',     date: 'Mar 23 juin', time: '20h00' }
-];
+let matches = [];
 
 /* ---- ÉTAT ---- */
 let currentFilter  = 'all';
@@ -198,15 +189,6 @@ function editEffectif(team) {
   renderStandings();
 }
 
-async function initApp() {
-  loadLocalData();
-  await loadServerData();
-  ensureTeamsEffectif();
-  renderMatches();
-  renderStandings();
-}
-
-initApp();
 
 /* ============================================================
    NAVIGATION
