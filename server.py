@@ -168,13 +168,8 @@ def init_postgres():
         conn.autocommit = True
         cursor = conn.cursor()
 
-        # Supprime les anciennes tables pour repartir proprement
-        cursor.execute('DROP TABLE IF EXISTS matches')
-        cursor.execute('DROP TABLE IF EXISTS team_effectif')
-
-        # Recrée les tables avec les bonnes colonnes en minuscules
         cursor.execute("""
-            CREATE TABLE matches (
+            CREATE TABLE IF NOT EXISTS matches (
                 id BIGINT PRIMARY KEY,
                 group_name VARCHAR(10),
                 home VARCHAR(255),
@@ -187,7 +182,7 @@ def init_postgres():
             )
         """)
         cursor.execute("""
-            CREATE TABLE team_effectif (
+            CREATE TABLE IF NOT EXISTS team_effectif (
                 team_name VARCHAR(255) PRIMARY KEY,
                 effectif INT NOT NULL
             )
