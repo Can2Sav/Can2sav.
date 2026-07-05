@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 DATA_FILE = ROOT / 'data.json'
 
-DB_TYPE = os.getenv('DB_TYPE', '').lower()  # mysql or postgres
+DB_TYPE = os.getenv('DB_TYPE', '').lower()
 
 MYSQL_CONFIG = {
     'host': os.getenv('MYSQL_HOST', '127.0.0.1'),
@@ -56,14 +56,14 @@ def revoke_token(token):
 
 DEFAULT_DATA = {
     'matches': [
-        { 'id': 1, 'group': 'A', 'home': 'Algerie',      'away': 'DOM-TOM',      'scoreH': None, 'scoreA': None, 'status': 'upcoming', 'date': 'Lun 22 juin', 'time': '19h00' },
-        { 'id': 2, 'group': 'A', 'home': 'Côte d\'Ivoire', 'away': 'Nigeria',      'scoreH': None, 'scoreA': None, 'status': 'upcoming', 'date': 'Lun 22 juin', 'time': '19h00' },
-        { 'id': 3, 'group': 'B', 'home': 'RD Congo',      'away': 'Afrique du Sud','scoreH': None, 'scoreA': None, 'status': 'upcoming', 'date': 'Lun 22 juin', 'time': '20h00' },
-        { 'id': 4, 'group': 'B', 'home': 'Cap Vert',      'away': 'Togo',         'scoreH': None, 'scoreA': None, 'status': 'upcoming', 'date': 'Lun 22 juin', 'time': '20h00' },
-        { 'id': 5, 'group': 'C', 'home': 'Senegal',       'away': 'Palestine',   'scoreH': None, 'scoreA': None, 'status': 'upcoming', 'date': 'Mar 23 juin', 'time': '19h00' },
-        { 'id': 6, 'group': 'C', 'home': 'Congo',         'away': 'Tunisie',     'scoreH': None, 'scoreA': None, 'status': 'upcoming', 'date': 'Mar 23 juin', 'time': '19h00' },
-        { 'id': 7, 'group': 'D', 'home': 'Comores',       'away': 'Mali',        'scoreH': None, 'scoreA': None, 'status': 'upcoming', 'date': 'Mar 23 juin', 'time': '20h00' },
-        { 'id': 8, 'group': 'D', 'home': 'Cameroun',      'away': 'Maroc',       'scoreH': None, 'scoreA': None, 'status': 'upcoming', 'date': 'Mar 23 juin', 'time': '20h00' },
+        { 'id': 1, 'group': 'A', 'home': 'Algerie',        'away': 'DOM-TOM',       'scoreH': None, 'scoreA': None, 'status': 'upcoming', 'date': 'Lun 22 juin', 'time': '19h00' },
+        { 'id': 2, 'group': 'A', 'home': "Côte d'Ivoire",  'away': 'Nigeria',        'scoreH': None, 'scoreA': None, 'status': 'upcoming', 'date': 'Lun 22 juin', 'time': '19h00' },
+        { 'id': 3, 'group': 'B', 'home': 'RD Congo',       'away': 'Afrique du Sud', 'scoreH': None, 'scoreA': None, 'status': 'upcoming', 'date': 'Lun 22 juin', 'time': '20h00' },
+        { 'id': 4, 'group': 'B', 'home': 'Cap Vert',       'away': 'Togo',           'scoreH': None, 'scoreA': None, 'status': 'upcoming', 'date': 'Lun 22 juin', 'time': '20h00' },
+        { 'id': 5, 'group': 'C', 'home': 'Senegal',        'away': 'Palestine',      'scoreH': None, 'scoreA': None, 'status': 'upcoming', 'date': 'Mar 23 juin', 'time': '19h00' },
+        { 'id': 6, 'group': 'C', 'home': 'Congo',          'away': 'Tunisie',        'scoreH': None, 'scoreA': None, 'status': 'upcoming', 'date': 'Mar 23 juin', 'time': '19h00' },
+        { 'id': 7, 'group': 'D', 'home': 'Comores',        'away': 'Mali',           'scoreH': None, 'scoreA': None, 'status': 'upcoming', 'date': 'Mar 23 juin', 'time': '20h00' },
+        { 'id': 8, 'group': 'D', 'home': 'Cameroun',       'away': 'Maroc',          'scoreH': None, 'scoreA': None, 'status': 'upcoming', 'date': 'Mar 23 juin', 'time': '20h00' },
     ],
     'teamsEffectif': {}
 }
@@ -129,8 +129,7 @@ def init_mysql():
 
         conn = get_mysql_connection(use_database=True)
         cursor = conn.cursor()
-        cursor.execute(
-            """
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS matches (
                 id BIGINT PRIMARY KEY,
                 group_name VARCHAR(10),
@@ -142,16 +141,13 @@ def init_mysql():
                 date_label VARCHAR(100),
                 time_label VARCHAR(100)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            """
-        )
-        cursor.execute(
-            """
+        """)
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS team_effectif (
                 team_name VARCHAR(255) PRIMARY KEY,
                 effectif INT NOT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            """
-        )
+        """)
         conn.commit()
         cursor.close()
         conn.close()
@@ -171,29 +167,25 @@ def init_postgres():
         conn = get_postgres_connection()
         conn.autocommit = True
         cursor = conn.cursor()
-        cursor.execute(
-            """
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS matches (
                 id BIGINT PRIMARY KEY,
                 group_name VARCHAR(10),
                 home VARCHAR(255),
                 away VARCHAR(255),
-                scoreH INT NULL,
-                scoreA INT NULL,
+                scoreh INT NULL,
+                scorea INT NULL,
                 status VARCHAR(50),
                 date_label VARCHAR(100),
                 time_label VARCHAR(100)
             )
-            """
-        )
-        cursor.execute(
-            """
+        """)
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS team_effectif (
                 team_name VARCHAR(255) PRIMARY KEY,
                 effectif INT NOT NULL
             )
-            """
-        )
+        """)
         cursor.close()
         conn.close()
         return True
@@ -214,15 +206,15 @@ def load_data_mysql():
     conn.close()
     matches = [
         {
-            'id': int(row['id']),
-            'group': row['group_name'],
-            'home': row['home'],
-            'away': row['away'],
-            'scoreH': row['scoreh'],
-            'scoreA': row['scorea'],
+            'id':     int(row['id']),
+            'group':  row['group_name'],
+            'home':   row['home'],
+            'away':   row['away'],
+            'scoreH': row['scoreH'],   # MySQL conserve la casse
+            'scoreA': row['scoreA'],
             'status': row['status'],
-            'date': row['date_label'],
-            'time': row['time_label'],
+            'date':   row['date_label'],
+            'time':   row['time_label'],
         }
         for row in rows
     ]
@@ -245,8 +237,8 @@ def save_data_mysql(payload):
             item.get('group'),
             item.get('home'),
             item.get('away'),
-            item.get('scoreH'),
-            item.get('scoreA'),
+            item.get('scoreH'),   # ← majuscule : correspond au JSON envoyé par le JS
+            item.get('scoreA'),   # ← majuscule
             item.get('status'),
             item.get('date'),
             item.get('time'),
@@ -255,15 +247,9 @@ def save_data_mysql(payload):
     ]
     if match_values:
         cursor.executemany(insert_match, match_values)
-    insert_eff = (
-        'INSERT INTO team_effectif (team_name, effectif) VALUES (%s, %s)'
-    )
-    eff_values = [
-        (team, int(value))
-        for team, value in payload.get('teamsEffectif', {}).items()
-    ]
+    eff_values = [(team, int(v)) for team, v in payload.get('teamsEffectif', {}).items()]
     if eff_values:
-        cursor.executemany(insert_eff, eff_values)
+        cursor.executemany('INSERT INTO team_effectif (team_name, effectif) VALUES (%s, %s)', eff_values)
     conn.commit()
     cursor.close()
     conn.close()
@@ -280,15 +266,15 @@ def load_data_postgres():
     conn.close()
     matches = [
         {
-            'id': int(row['id']),
-            'group': row['group_name'],
-            'home': row['home'],
-            'away': row['away'],
-            'scoreH': row['scoreH'],
-            'scoreA': row['scoreA'],
+            'id':     int(row['id']),
+            'group':  row['group_name'],
+            'home':   row['home'],
+            'away':   row['away'],
+            'scoreH': row['scoreh'],   # ← minuscule : PostgreSQL convertit toujours en minuscules
+            'scoreA': row['scorea'],   # ← minuscule
             'status': row['status'],
-            'date': row['date_label'],
-            'time': row['time_label'],
+            'date':   row['date_label'],
+            'time':   row['time_label'],
         }
         for row in rows
     ]
@@ -302,7 +288,7 @@ def save_data_postgres(payload):
     cursor.execute('DELETE FROM matches')
     cursor.execute('DELETE FROM team_effectif')
     insert_match = (
-        'INSERT INTO matches (id, group_name, home, away, scoreH, scoreA, status, date_label, time_label) '
+        'INSERT INTO matches (id, group_name, home, away, scoreh, scorea, status, date_label, time_label) '
         'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
     )
     match_values = [
@@ -311,8 +297,8 @@ def save_data_postgres(payload):
             item.get('group'),
             item.get('home'),
             item.get('away'),
-            item.get('scoreH'),
-            item.get('scoreA'),
+            item.get('scoreH'),   # ← lit 'scoreH' depuis le JSON du JS
+            item.get('scoreA'),   # ← lit 'scoreA' depuis le JSON du JS
             item.get('status'),
             item.get('date'),
             item.get('time'),
@@ -321,15 +307,9 @@ def save_data_postgres(payload):
     ]
     if match_values:
         cursor.executemany(insert_match, match_values)
-    insert_eff = (
-        'INSERT INTO team_effectif (team_name, effectif) VALUES (%s, %s)'
-    )
-    eff_values = [
-        (team, int(value))
-        for team, value in payload.get('teamsEffectif', {}).items()
-    ]
+    eff_values = [(team, int(v)) for team, v in payload.get('teamsEffectif', {}).items()]
     if eff_values:
-        cursor.executemany(insert_eff, eff_values)
+        cursor.executemany('INSERT INTO team_effectif (team_name, effectif) VALUES (%s, %s)', eff_values)
     conn.commit()
     cursor.close()
     conn.close()
@@ -342,16 +322,16 @@ def init_database():
             active = 'postgres'
         elif USE_MYSQL and init_mysql():
             active = 'mysql'
-    elif DB_TYPE in ('mysql', ''):
+    elif DB_TYPE in ('mysql',):
         if USE_MYSQL and init_mysql():
             active = 'mysql'
         elif USE_POSTGRES and init_postgres():
             active = 'postgres'
     else:
-        if USE_MYSQL and init_mysql():
-            active = 'mysql'
-        elif USE_POSTGRES and init_postgres():
+        if USE_POSTGRES and init_postgres():
             active = 'postgres'
+        elif USE_MYSQL and init_mysql():
+            active = 'mysql'
 
     if active is None and USE_POSTGRES and init_postgres():
         active = 'postgres'
@@ -405,7 +385,7 @@ class Handler(SimpleHTTPRequestHandler):
             except Exception as exc:
                 print('Postgres save error:', exc, flush=True)
         DATA_FILE.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding='utf-8')
-        print('Saved data to JSON:', DATA_FILE, 'matches=', len(payload.get('matches', [])), 'teamsEffectif=', len(payload.get('teamsEffectif', {})), flush=True)
+        print('Saved data to JSON:', DATA_FILE, flush=True)
 
     def do_GET(self):
         if self.path == '/api/data':
@@ -461,7 +441,7 @@ class Handler(SimpleHTTPRequestHandler):
             auth = self.headers.get('Authorization', '')
             token = auth.replace('Bearer ', '') if auth.startswith('Bearer ') else ''
             if not verify_token(token):
-                print('Save unauthorized: token invalid')
+                print('Save unauthorized: token invalid', flush=True)
                 self._set_json_headers(401)
                 self.wfile.write(json.dumps({'success': False, 'error': 'Unauthorized'}, ensure_ascii=False).encode('utf-8'))
                 return
